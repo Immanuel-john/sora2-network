@@ -1107,8 +1107,7 @@ impl<T: Config> Pallet<T> {
             .filter_map(|(from, to)| {
                 let pair = Self::weak_sort_pair(&dex_info, *from, *to);
 
-                // TODO: #441 use TradingPairSourceManager instead of trading-pair pallet
-                trading_pair::Pallet::<T>::list_enabled_sources_for_trading_pair(
+                T::TradingPairSourceManager::list_enabled_sources_for_trading_pair(
                     dex_id,
                     &pair.base_asset_id,
                     &pair.target_asset_id,
@@ -1128,8 +1127,7 @@ impl<T: Config> Pallet<T> {
             |(from, to)| -> Result<_, DispatchError> {
                 let pair = Self::weak_sort_pair(&dex_info, *from, *to);
 
-                // TODO: #441 use TradingPairSourceManager instead of trading-pair pallet
-                let sources = trading_pair::Pallet::<T>::list_enabled_sources_for_trading_pair(
+                let sources = T::TradingPairSourceManager::list_enabled_sources_for_trading_pair(
                     &dex_id,
                     &pair.base_asset_id,
                     &pair.target_asset_id,
@@ -2197,7 +2195,6 @@ pub mod pallet {
     use frame_system::pallet_prelude::*;
 
     // TODO: #395 use AssetInfoProvider instead of assets pallet
-    // TODO: #441 use TradingPairSourceManager instead of trading-pair pallet
     #[pallet::config]
     pub trait Config:
         frame_system::Config + common::Config + assets::Config + trading_pair::Config
@@ -2219,6 +2216,8 @@ pub mod pallet {
         type VestedRewardsPallet: VestedRewardsPallet<Self::AccountId, Self::AssetId>;
         type GetADARAccountId: Get<Self::AccountId>;
         type ADARCommissionRatioUpdateOrigin: EnsureOrigin<Self::RuntimeOrigin>;
+        type TradingPairSourceManager: TradingPairSourceManager<Self::DEXId, Self::AssetId>;
+
         /// Weight information for the extrinsics in this Pallet.
         type WeightInfo: WeightInfo;
     }

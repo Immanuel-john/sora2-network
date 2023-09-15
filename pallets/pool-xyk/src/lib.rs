@@ -180,8 +180,7 @@ impl<T: Config> Pallet<T> {
             (asset_a_pair.0, asset_b_pair.0)
         };
 
-        // TODO: #441 use TradingPairSourceManager instead of trading-pair pallet
-        trading_pair::Pallet::<T>::enable_source_for_trading_pair(
+        T::TradingPairSourceManager::enable_source_for_trading_pair(
             dex_id,
             sorted_asset_a,
             sorted_asset_b,
@@ -649,7 +648,6 @@ pub mod pallet {
     use orml_traits::GetByKey;
 
     // TODO: #395 use AssetInfoProvider instead of assets pallet
-    // TODO: #441 use TradingPairSourceManager instead of trading-pair pallet
     #[pallet::config]
     pub trait Config:
         frame_system::Config
@@ -683,6 +681,7 @@ pub mod pallet {
         /// Weight information for extrinsics in this pallet.
         type WeightInfo: WeightInfo;
         type GetTradingPairRestrictedFlag: GetByKey<TradingPair<Self::AssetId>, bool>;
+        type TradingPairSourceManager: TradingPairSourceManager<Self::DEXId, Self::AssetId>;
     }
 
     /// The current storage version.

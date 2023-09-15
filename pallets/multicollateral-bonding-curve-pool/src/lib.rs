@@ -187,14 +187,12 @@ pub mod pallet {
     use frame_system::pallet_prelude::*;
 
     // TODO: #395 use AssetInfoProvider instead of assets pallet
-    // TODO: #441 use TradingPairSourceManager instead of trading-pair pallet
     #[pallet::config]
     pub trait Config:
         frame_system::Config
         + common::Config
         + assets::Config
         + technical::Config
-        + trading_pair::Config
         + pool_xyk::Config
     {
         type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
@@ -209,6 +207,8 @@ pub mod pallet {
         type VestedRewardsPallet: VestedRewardsPallet<Self::AccountId, Self::AssetId>;
         type BuyBackHandler: BuyBackHandler<Self::AccountId, Self::AssetId>;
         type BuyBackXSTPercent: Get<Fixed>;
+        type TradingPairSourceManager: TradingPairSourceManager<Self::DEXId, Self::AssetId>;
+
         /// Weight information for extrinsics in this pallet.
         type WeightInfo: WeightInfo;
     }
@@ -879,8 +879,7 @@ impl<T: Config> Pallet<T> {
                 &collateral_asset_id,
             )?;
 
-            // TODO: #441 use TradingPairSourceManager instead of trading-pair pallet
-            trading_pair::Pallet::<T>::enable_source_for_trading_pair(
+            T::TradingPairSourceManager::enable_source_for_trading_pair(
                 &DEXId::Polkaswap.into(),
                 &T::GetBaseAssetId::get(),
                 &collateral_asset_id,
